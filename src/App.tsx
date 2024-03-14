@@ -13,6 +13,7 @@ export default function App() {
   const [value, setValue] = useState('print("Hello, World!")');
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isDesktop, setIsDesktop] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { runPython, stdout, stderr, isRunning, isLoading } = usePython();
 
@@ -68,10 +69,12 @@ export default function App() {
     result.addEventListener("change", onChange);
     setIsDesktop(result.matches);
 
+    setMounted(true);
+
     return () => result.removeEventListener("change", onChange);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !mounted) {
     return (
       <div className="grid h-screen place-items-center">
         <div className="flex items-center flex-col gap-2">
@@ -99,7 +102,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        <main className="px-0 lg:px-5 h-[calc(100%_-_85px)]">
+        <main className="px-0 lg:px-5 lg:pr-0 h-[calc(100%_-_85px)]">
           <ResizablePanelGroup
             className="h-full"
             direction={isDesktop ? "horizontal" : "vertical"}
@@ -113,8 +116,8 @@ export default function App() {
               />
             </ResizablePanel>
             <ResizableHandle />
-            <ResizablePanel className="p-3 font-light dark:text-sky-50">
-              <pre>
+            <ResizablePanel className="font-light dark:text-sky-50">
+              <pre className="h-full p-3 overflow-y-auto">
                 <code>
                   {stderr || stdout || "Output will be displayed here."}
                 </code>
